@@ -1,0 +1,41 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.python-version
+.pytest_cache/
+
+# ---- أسرار وبيئات ----
+.env
+.env.*
+!.env.example
+data/.enc_key
+
+# ---- بيانات التشغيل (SQLite، نسخ، لوغات) ----
+data/*.db
+data/*.db-*
+data/*.sqlite
+backups/
+backend/backups/
+*.log
+
+# ---- Node / واجهة ----
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# ---- Capacitor ----
+.capacitor/
+frontend/android/app/src/main/assets/public/*
+!frontend/android/app/src/main/assets/public/.gitkeep
+
+# ---- نظام/محررات ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

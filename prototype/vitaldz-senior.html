@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Vital DZ — تطبيق كبار السن (نموذج)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        navy: { 700: '#123A63', 800: '#0E2E52', 900: '#0A2039' },
+        vital: { 500: '#16A34A', 600: '#15803D', 700: '#166534' },
+        sosh: '#DC2626',
+      },
+      fontFamily: { cairo: ['Cairo', 'Tajawal', 'Segoe UI', 'sans-serif'] },
+    },
+  },
+};
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  html, body { font-family: 'Cairo', 'Tajawal', sans-serif; }
+  .tap { -webkit-tap-highlight-color: transparent; transition: transform .08s ease, box-shadow .15s ease; }
+  .tap:active { transform: scale(.96); }
+  .pulse-sos { animation: pul 1.6s infinite; }
+  @keyframes pul {
+    0%   { box-shadow: 0 0 0 0 rgba(220,38,38,.55); }
+    70%  { box-shadow: 0 0 0 26px rgba(220,38,38,0); }
+    100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+  }
+  .mini { display:none; }
+</style>
+</head>
+<body class="bg-gray-100 text-navy-900">
+
+<div id="app" class="max-w-md mx-auto bg-gray-50 min-h-screen flex flex-col pb-24">
+
+  <!-- ======= الشاشة الرئيسية ======= -->
+  <section id="scr-home" class="flex-1">
+
+    <!-- الرأس -->
+    <header class="bg-navy-800 text-white px-5 pt-6 pb-8 rounded-b-3xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-extrabold">Vital <span class="text-emerald-400">DZ</span></h1>
+          <p class="text-emerald-300 text-sm font-semibold mt-1">رعايـــــتي — نبض الرعاية المتصل</p>
+        </div>
+        <button onclick="toggleLang()" class="tap bg-white/10 border border-white/20 text-white text-sm font-bold px-4 py-3 rounded-2xl">FR / ع</button>
+      </div>
+
+      <!-- بطاقة المستفيد -->
+      <div class="bg-white text-navy-900 rounded-3xl p-5 mt-6 flex items-center gap-4">
+        <div class="w-20 h-20 rounded-full bg-emerald-100 grid place-items-center text-4xl shrink-0 border-4 border-emerald-200">👴</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-gray-500 text-sm font-semibold">الحاج بلقاسم سليماني — غرداية</p>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="bg-emerald-100 text-emerald-700 font-extrabold px-3 py-1 rounded-full text-sm">🟢 الحالة: مستقرة</span>
+            <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded-full text-sm">الولاية 47</span>
+          </div>
+          <p class="text-xs text-gray-400 mt-2 flex items-center gap-1">🗓️ آخر قياس: 26/09/2026 — 08:14</p>
+        </div>
+        <div class="text-center">
+          <button onclick="showQR()" class="tap bg-navy-800 text-white text-xs font-bold px-3 py-3 rounded-2xl leading-5">بطاقتي<br><span class="text-emerald-300">QR</span></button>
+        </div>
+      </div>
+    </header>
+
+    <!-- بطاقة QR منبثقة -->
+    <div id="qr-card" class="hidden fixed inset-0 bg-black/60 z-40 grid place-items-center p-6" onclick="hideQR()">
+      <div class="bg-white rounded-3xl p-8 text-center w-full max-w-xs" onclick="event.stopPropagation()">
+        <p class="font-extrabold text-lg mb-1">بطاقة التعريف الذكية</p>
+        <p class="text-gray-500 text-sm mb-4">تظهر البيانات الحيوية للطوارئ فقط — طبق القانون 18-07</p>
+        <svg viewBox="0 0 100 100" class="w-44 h-44 mx-auto" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="100" fill="#fff"/><path d="M10 10h22v3h-19v19h-3zM68 10h22v22h-3v-19h-19zM10 68h3v19h19v3h-22zM78 78h19v22h-22v-3h19z" fill="#0E2E52"/>
+          <g fill="#0E2E52"><rect x="18" y="18" width="7" height="7"/><rect x="30" y="18" width="7" height="7"/><rect x="42" y="18" width="7" height="7"/><rect x="54" y="18" width="7" height="7"/><rect x="18" y="30" width="7" height="7"/><rect x="30" y="30" width="7" height="7"/><rect x="42" y="30" width="7" height="7"/><rect x="54" y="30" width="7" height="7"/><rect x="18" y="42" width="7" height="7"/><rect x="30" y="42" width="7" height="7"/><rect x="42" y="42" width="7" height="7"/><rect x="54" y="42" width="7" height="7"/><rect x="18" y="54" width="7" height="7"/><rect x="30" y="54" width="7" height="7"/><rect x="42" y="54" width="7" height="7"/><rect x="54" y="54" width="7" height="7"/></g>
+          <rect x="68" y="28" width="7" height="7" fill="#16A34A"/><rect x="80" y="28" width="7" height="7" fill="#16A34A"/><rect x="68" y="40" width="7" height="7" fill="#16A34A"/><rect x="80" y="40" width="7" height="7" fill="#16A34A"/><rect x="68" y="52" width="7" height="7" fill="#16A34A"/>
+        </svg>
+        <p class="text-xs text-gray-400 mt-4 break-all" dir="ltr">RIAYATI-DZ|SOS-BELKACEM|V2026</p>
+      </div>
+    </div>
+
+    <!-- زر SOS عملاق -->
+    <div class="px-5 -mt-6">
+      <button onclick="sos()" class="tap pulse-sos w-full bg-sosh text-white rounded-3xl py-8 flex flex-col items-center gap-1 shadow-2xl">
+        <span class="text-5xl">🆘</span>
+        <span class="text-2xl font-black leading-7">زر الاستغاثة SOS</span>
+        <span class="text-sm font-semibold opacity-90">يُرسل موقعي للعائلة والحماية المدنية — يعمل دون إنترنت</span>
+      </button>
+    </div>
+
+    <!-- 3 أزرار خدمات عملاقة -->
+    <div class="px-5 mt-6 grid gap-4">
+      <button onclick="goto('scr-nurse')" class="tap flex items-center gap-4 bg-navy-800 text-white rounded-3xl p-5">
+        <span class="text-4xl bg-white/10 rounded-2xl w-16 h-16 grid place-items-center">🧑‍⚕️</span>
+        <span class="flex-1 text-start"><b class="block text-xl">طلب ممرض منزلي</b><small class="opacity-80">زيارة اليوم أو غداً — بدون ألم</small></span>
+        <span class="text-2xl">‹</span>
+      </button>
+      <button onclick="goto('scr-vitals')" class="tap flex items-center gap-4 bg-white border-2 border-emerald-500 text-navy-900 rounded-3xl p-5 shadow-sm">
+        <span class="text-4xl bg-emerald-100 rounded-2xl w-16 h-16 grid place-items-center">🩺</span>
+        <span class="flex-1 text-start"><b class="block text-xl">تسجيل قياساتي</b><small class="text-gray-500 font-semibold">ضغط · سكر · نبض · حرارة — بالصوت أو بالأرقام</small></span>
+        <span class="text-2xl text-emerald-600">‹</span>
+      </button>
+      <button onclick="goto('scr-spa')" class="tap flex items-center gap-4 bg-white border-2 border-emerald-200 text-navy-900 rounded-3xl p-5 shadow-sm">
+        <span class="text-4xl bg-amber-100 rounded-2xl w-16 h-16 grid place-items-center">♨️</span>
+        <span class="flex-1 text-start"><b class="block text-xl">السياحة العلاجية</b><small class="text-gray-500 font-semibold">حمّامات معدنية وحزم علاجية موصى بها</small></span>
+        <span class="text-2xl text-emerald-600">‹</span>
+      </button>
+    </div>
+
+    <!-- تنبيه تنبؤي -->
+    <div class="px-5 mt-6">
+      <div class="bg-amber-50 border-2 border-amber-300 text-amber-800 rounded-3xl p-4 text-base font-bold flex items-center gap-3">
+        <span class="text-3xl">⚠️</span>
+        <span>منبّه تنبؤي: ارتفاع سكري معتدل (1.6) — راجِع طبيبك خلال 48 ساعة.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======= طلب ممرض ======= -->
+  <section id="scr-nurse" class="hidden flex-1 px-5 pt-8">
+    <button onclick="goto('scr-home')" class="tap text-navy-800 font-extrabold text-xl mb-4">→ رجوع</button>
+    <h2 class="text-2xl font-black mb-4">طلب ممرض منزلي</h2>
+    <div class="bg-white rounded-3xl p-5 border border-gray-200 space-y-4">
+      <div>
+        <label class="font-bold text-gray-600 block mb-2">متى تريد الزيارة؟</label>
+        <div class="grid grid-cols-2 gap-3">
+          <button onclick="mini()" class="tap chosen btn-demo bg-navy-800 text-white font-black py-4 rounded-2xl text-lg">اليوم 17:00</button>
+          <button onclick="mini()" class="tap btn-demo border-2 border-navy-800 font-black py-4 rounded-2xl text-lg">غداً صباحاً</button>
+        </div>
+      </div>
+      <label class="font-bold text-gray-600 block">ملاحظة صوتية (اختياري)</label>
+      <button onclick="voice(this)" class="tap w-full bg-emerald-500 text-white font-black py-5 rounded-2xl text-xl">🎤 اضغط وتحدَّث</button>
+      <button onclick="mini()" class="tap w-full bg-navy-800 text-white font-black py-5 rounded-2xl text-xl">تأكيد الطلب ✔️</button>
+    </div>
+  </section>
+
+  <!-- ======= تسجيل القياسات ======= -->
+  <section id="scr-vitals" class="hidden flex-1 px-5 pt-8">
+    <button onclick="goto('scr-home')" class="tap text-navy-800 font-extrabold text-xl mb-4">→ رجوع</button>
+    <h2 class="text-2xl font-black mb-4">تسجيل قياساتي</h2>
+    <div class="bg-white rounded-3xl p-5 border border-gray-200 space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="font-bold text-gray-600 text-sm">الضغط</label><input class="w-full border-2 border-gray-300 rounded-2xl p-4 text-xl font-black text-center h-16" inputmode="numeric" placeholder="130/80"></div>
+        <div><label class="font-bold text-gray-600 text-sm">السكر</label><input class="w-full border-2 border-gray-300 rounded-2xl p-4 text-xl font-black text-center h-16" inputmode="decimal" placeholder="1.2"></div>
+        <div><label class="font-bold text-gray-600 text-sm">النّبض</label><input class="w-full border-2 border-gray-300 rounded-2xl p-4 text-xl font-black text-center h-16" inputmode="numeric" placeholder="78"></div>
+        <div><label class="font-bold text-gray-600 text-sm">الحرارة</label><input class="w-full border-2 border-gray-300 rounded-2xl p-4 text-xl font-black text-center h-16" inputmode="decimal" placeholder="36.5"></div>
+      </div>
+      <button onclick="voice(this)" class="tap w-full bg-emerald-500 text-white font-black py-5 rounded-2xl text-xl">🎤 قُل القياسات بصوت عالٍ</button>
+      <button onclick="mini()" class="tap w-full bg-navy-800 text-white font-black py-5 rounded-2xl text-xl">حفظ ومزامنة تلقائية ✔️</button>
+      <p class="text-sm text-gray-400 text-center font-semibold">يُحفظ محلياً عند انقطاع الإنترنت ويُزامَن تلقائياً عند العودة (URI)</p>
+    </div>
+  </section>
+
+  <!-- ======= السياحة العلاجية ======= -->
+  <section id="scr-spa" class="hidden flex-1 px-5 pt-8">
+    <button onclick="goto('scr-home')" class="tap text-navy-800 font-extrabold text-xl mb-4">→ رجوع</button>
+    <h2 class="text-2xl font-black mb-4">السياحة العلاجية</h2>
+    <div class="grid gap-4">
+      <div class="bg-white rounded-3xl p-5 border border-gray-200">
+        <b class="text-lg">♨️ حمام زلفانة الحراري</b>
+        <p class="text-gray-500 font-semibold mt-1">مياه كبريتية 42° — مفيدة للروماتيزم والمفاصل</p>
+        <div class="flex gap-2 mt-4">
+          <button onclick="mini()" class="tap flex-1 bg-emerald-500 text-white font-black py-4 rounded-2xl">حجز عبر الإحالة</button>
+          <button onclick="mini()" class="tap bg-white border-2 border-emerald-500 text-emerald-700 font-black px-5 rounded-2xl">التفاصيل</button>
+        </div>
+      </div>
+      <div class="bg-white rounded-3xl p-5 border border-gray-200">
+        <b class="text-lg">🛁 محطة المنيعة الصحية</b>
+        <p class="text-gray-500 font-semibold mt-1">استجمام مناخي + حزمة 7 ليالٍ</p>
+        <button onclick="mini()" class="tap mt-4 w-full border-2 border-emerald-500 text-emerald-700 font-black py-4 rounded-2xl">عرض الحزمة</button>
+      </div>
+      <p class="text-sm text-gray-400 text-center font-semibold">الاقتراح آلي بقاعدة معرفة — القرار النهائي للطبيب الموافق قبل السفر</p>
+    </div>
+  </section>
+
+  <!-- ======= SOS ======= -->
+  <div id="sos-overlay" class="hidden fixed inset-0 z-50 grid place-items-center p-6">
+    <div class="absolute inset-0 bg-sosh/20 backdrop-blur-sm" onclick="hideSOS()"></div>
+    <div class="relative bg-white rounded-3xl p-8 w-full max-w-xs text-center">
+      <div class="text-6xl mb-2">🚨</div>
+      <h2 class="text-2xl font-black text-sosh">إرسال استغاثة الآن؟</h2>
+      <p class="text-gray-500 font-bold text-sm mt-2">سيذهب التنبيه إلى العائلة والحماية المدنية (14) مع موقعك عبر SMS</p>
+      <p id="gps-line" class="bg-gray-100 text-navy-800 font-bold text-sm p-3 rounded-2xl my-4" dir="ltr">📍 تحديد الموقع…</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button class="tap bg-sosh text-white font-black py-4 rounded-2xl" onclick="sosSend()">نعم، أرسل</button>
+        <button class="tap bg-gray-200 font-black py-4 rounded-2xl" onclick="hideSOS()">إلغاء</button>
+      </div>
+      <p class="text-xs text-gray-400 mt-4">قانون 18-07 — لا يُمرَّر هذا التنبيه إلا للجهات المخوّلة.</p>
+    </div>
+  </div>
+
+  <!-- ======= الشريط السفلي ======= -->
+  <nav class="fixed bottom-0 inset-x-0 z-40">
+    <div class="max-w-md mx-auto bg-white border-t border-gray-200 grid grid-cols-4 text-center py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <button onclick="goto('scr-home')" class="tap flex flex-col items-center gap-1"><span class="text-2xl">🏠</span><b class="text-xs">الرئيسية</b></button>
+      <button onclick="goto('scr-vitals')" class="tap flex flex-col items-center gap-1"><span class="text-2xl">🩺</span><b class="text-xs">قياساتي</b></button>
+      <button onclick="sos()" class="tap flex flex-col items-center gap-1"><span class="text-2xl">🆘</span><b class="text-xs text-sosh font-black">SOS</b></button>
+      <button onclick="goto('scr-spa')" class="tap flex flex-col items-center gap-1"><span class="text-2xl">♨️</span><b class="text-xs">العلاج</b></button>
+    </div>
+  </nav>
+
+  <div id="toast" class="fixed bottom-24 inset-x-0 z-50 hidden justify-center px-6"><div class="bg-navy-900 text-white font-black text-lg px-6 py-4 rounded-2xl shadow-2xl">تم بنجاح ✔️</div></div>
+</div>
+
+<script>
+  const T = {
+    ar: { home:'الرئيسية', sos:'SOS', stable:'الحالة: مستقرة', nurse:'طلب ممرض', vitals:'تسجيل قياساتي', spa:'السياحة العلاجية' },
+  };
+  function goto(id) {
+    document.querySelectorAll('#app > section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    window.scrollTo({ top: 0 });
+  }
+  let lang = 'ar';
+  function toggleLang() { lang = lang === 'ar' ? 'fr' : 'ar'; toast('النسخة الفرنسية تصل قريباً (i18n جاهز)'); }
+  function showQR() { document.getElementById('qr-card').classList.remove('hidden'); }
+  function hideQR() { document.getElementById('qr-card').classList.add('hidden'); }
+  function sos() {
+    document.getElementById('gps-line').textContent = '📍 تحديد الموقع…';
+    document.getElementById('sos-overlay').classList.remove('hidden');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        p => document.getElementById('gps-line').textContent = '📍 ' + p.coords.latitude.toFixed(4) + ', ' + p.coords.longitude.toFixed(4),
+        () => document.getElementById('gps-line').textContent = '📴 GPS معطّل — أرسل بدون موقع');
+    }
+  }
+  function sosSend() {
+    hideSOS();
+    const gps = document.getElementById('gps-line').textContent;
+    const body = encodeURIComponent('🆘 SOS Vital DZ — الحاج بلقاسم — ' + gps);
+    try { window.location.href = 'sms:0555001102?&body=' + body; } catch (e) {}
+    toast('أُرسل التنبيه للعائلة والحماية المدنية (14)');
+  }
+  function hideSOS() { document.getElementById('sos-overlay').classList.add('hidden'); }
+  function mini() { toast('تم 😊 — نموذج تجريبي للعرض'); }
+  function voice(el) { toast(el.textContent.includes('قياس') ? '🎤 أنصت… قُل: ضغط 130 على 80، سكر 1.2' : '🎤 أنصت… تحدَّث. اختبر الإدخال الصوتي'); }
+  function toast(m) {
+    const t = document.getElementById('toast');
+    t.firstElementChild.textContent = m;
+    t.classList.remove('hidden'); t.classList.add('flex');
+    clearTimeout(t._tt); t._tt = setTimeout(() => { t.classList.add('hidden'); t.classList.remove('flex'); }, 2600);
+  }
+</script>
+</body>
+</html>
