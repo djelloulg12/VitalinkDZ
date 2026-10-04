@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "cap:init": "cap init dz.riayati.vitalink „رعايتي DZ\" --web-dir=dist",
+    "cap:init": "cap init dz.riayati.vitalink \"Riayati DZ\" --web-dir=dist",
     "cap:sync": "npm run build && cap sync",
     "cap:android": "npm run cap:sync && cap open android",
     "cap:ios": "npm run cap:sync && cap open ios"

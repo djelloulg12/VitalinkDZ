@@ -6,6 +6,13 @@ import { toast, Modal, Field } from '../ui'
 
 const ROLES = ['nurse', 'doctor', 'admin', 'patient', 'family', 'dass', 'agency', 'thermal', 'pharmacist', 'researcher']
 
+const FEATS = [
+  { icon: '❤️', txt: 'سجل صحي موحد وراسخ', cls: 'dot-red' },
+  { icon: '🏥', txt: 'إحالات وتنسيق متعدد الأطراف', cls: 'dot-purple' },
+  { icon: '🌍', txt: 'سياحة علاجية دولية', cls: 'dot-green' },
+  { icon: '🧓', txt: 'وضع رعاية كبار السن', cls: 'dot-gold' },
+]
+
 export function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -36,31 +43,82 @@ export function Login() {
     }
   }
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && pendingRole) submit()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [pendingRole, username, password])
+
   return (
-    <div className="login-screen">
-      <div className="login-box">
-        <div className="login-head">
+    <div className="login-shell">
+      <aside className="login-brand-panel">
+        <div className="login-brand-top">
           <div className="brand-logo">❤️</div>
-          <h1>
-            VITALINK DZ <span className="muted">— نبض الرعاية المتصل</span>
-          </h1>
-          <p>منظومة وطنية موحدة للرعاية الصحية والاجتماعية والسياحة العلاجية</p>
+          <div>
+            <b>رعايتي DZ</b>
+            <small>Vitalink — نبض الرعاية المتصل</small>
+          </div>
         </div>
 
-        <div className="role-cards">
-          {ROLES.map((r) => {
-            const info = ROLE_INFO[r]
-            return (
-              <div key={r} className="role-card" onClick={() => openRole(r)}>
-                <div className="r-ico">{info.icon}</div>
-                <b>{info.title}</b>
-                <small>{info.desc}</small>
-                <span className="go">دخول ←</span>
-              </div>
-            )
-          })}
+        <div className="login-brand-mid">
+          <h2>منظومة وطنية موحّدة للرعاية<br />الصحية والاجتماعية والسياحة العلاجية</h2>
+          <p className="lbm">
+            منصة جزائرية تصل المريض، الطبيب، الممرّض، الأسرة والمؤسسات الصحية عبر سجل موحّد آمن،
+            حضور لحظي وإحالات ذكية — بلمسة وإنسانيتين في التنقل بين الجهات.
+          </p>
+          <div className="feature-chips">
+            {FEATS.map((f) => (
+              <span className="feat" key={f.txt}>
+                <span className={`dot ${f.cls}`} /> {f.icon} {f.txt}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+
+        <div className="login-brand-foot">
+          <span>🔒 اتصال مشفّر</span>
+          <span>•</span>
+          <span>متوافق مع الجوال (PWA)</span>
+          <span>•</span>
+          <span>التشغيل دون إنترنت</span>
+        </div>
+      </aside>
+
+      <section className="login-panel-side">
+        <div className="login-panel-box">
+          <div className="login-panel-title">
+            <h1>بوابة الدخول الموحّدة</h1>
+            <p>اختر هويتك للبدء — يتم تعبئة الحساب التجريبي تلقائياً</p>
+          </div>
+
+          <div className="role-cards">
+            {ROLES.map((r) => {
+              const info = ROLE_INFO[r]
+              return (
+                <div
+                  key={r}
+                  className="role-card"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => openRole(r)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRole(r) } }}
+                >
+                  <div className="r-ico">{info.icon}</div>
+                  <b>{info.title}</b>
+                  <small>{info.desc}</small>
+                  <span className="go">دخول ←</span>
+                </div>
+              )
+            })}
+          </div>
+
+          <p className="login-panel-foot">
+            حساب تجريبي جاهز لكل دور · كلمة المرور <b>demo123</b> · يمكنك تغييرها لاحقاً من ملفك الشخصي
+          </p>
+        </div>
+      </section>
 
       {pendingRole && (
         <Modal
@@ -78,7 +136,7 @@ export function Login() {
         >
           <div className="form-row">
             <Field label="اسم المستخدم">
-              <input className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} />
+              <input className="form-control" value={username} autoFocus onChange={(e) => setUsername(e.target.value)} />
             </Field>
             <Field label="كلمة المرور">
               <input className="form-control" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />

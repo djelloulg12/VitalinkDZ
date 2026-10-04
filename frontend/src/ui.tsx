@@ -62,27 +62,37 @@ export function Modal({
   foot?: React.ReactNode
   size?: string
 }) {
+  const closeRef = React.useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const orig = document.body.style.overflow
+    const prevFocus = document.activeElement as HTMLElement | null
     document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
     return () => {
       document.body.style.overflow = orig
+      window.removeEventListener('keydown', onKey)
+      prevFocus?.focus()
     }
   }, [])
   return (
     <div
       className="modal-overlay"
+      role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div className={`modal ${size || ''}`}>
+      <div className={`modal ${size || ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <div className="modal-head">
           <span className="brand-logo" style={{ width: 38, height: 38, fontSize: 17, borderRadius: 12 }}>
             {icon || '📋'}
           </span>
           <h3>{title}</h3>
-          <button className="icon-btn" onClick={onClose}>✕</button>
+          <button className="icon-btn" ref={closeRef} aria-label="إغلاق" onClick={onClose}>✕</button>
         </div>
         <div className="modal-body">{children}</div>
         {foot && <div className="modal-foot">{foot}</div>}
