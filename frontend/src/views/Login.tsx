@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
-import { DEMO_USERNAME, ROLE_INFO } from '../types'
+import { DEMO_USERNAME, ROLE_INFO, User } from '../types'
 import { toast, Modal, Field } from '../ui'
 
 const ROLES = ['nurse', 'doctor', 'admin', 'patient', 'family', 'dass', 'agency', 'thermal', 'pharmacist', 'researcher']
@@ -27,15 +27,19 @@ export function Login() {
     setPassword('demo123')
   }
 
+  const go = (u: User) => {
+    toast(`مرحباً ${u.name}`, 'success')
+    if (u.role === 'admin') navigate('/admin')
+    else if (u.role === 'researcher') navigate('/cv')
+    else navigate(`/portal/${u.role}`)
+  }
+
   const submit = async () => {
     if (!pendingRole) return
     setBusy(true)
     try {
       const u = await login(username, password)
-      toast(`مرحباً ${u.name}`, 'success')
-      if (u.role === 'admin') navigate('/admin')
-      else if (u.role === 'researcher') navigate('/cv')
-      else navigate(`/portal/${u.role}`)
+      go(u)
     } catch (e: any) {
       toast(e.message || 'فشل تسجيل الدخول', 'error')
     } finally {
@@ -114,9 +118,24 @@ export function Login() {
             })}
           </div>
 
+          <div className="quick-start">
+            <span className="qs-step"><b>1</b> اختر هويتك</span>
+            <span className="qs-step"><b>2</b> اضغط دخول — الحساب جاهز</span>
+            <span className="qs-step"><b>3</b> استكشف المنظومة</span>
+          </div>
+
           <p className="login-panel-foot">
             حساب تجريبي جاهز لكل دور · كلمة المرور <b>demo123</b> · يمكنك تغييرها لاحقاً من ملفك الشخصي
           </p>
+
+          <div className="login-panel-links">
+            <span className="muted small">منظومة عامة أيضاً:</span>
+            <Link to="/">الرئيسية</Link>
+            <span>·</span>
+            <Link to="/tourism">السياحة العلاجية</Link>
+            <span>·</span>
+            <Link to="/about">من نحن</Link>
+          </div>
         </div>
       </section>
 

@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     secret_key: str = "vitalink-dz-dev-secret"
     access_token_expire_minutes: int = 60 * 24
 
+    # الأمان: عند تفعيل force_password_change يُجبر كل مستخدم على تغيير كلمة المرور عند الدخول.
+    force_password_change: bool = False
+    # وضع العرض التجريبي (يُظهر شارة "بيئة تجريبية" في الواجهة).
+    demo_mode: bool = True
+
     llm_provider: str = "mock"
     llm_model: str = "mock"
     openai_api_key: str = ""

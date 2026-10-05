@@ -1,6 +1,7 @@
 import { useApiData } from '../../auth'
-import { Referral } from '../../types'
+import { Referral, WilayaReportRow } from '../../types'
 import { Stat, Avatar, Stars } from '../../ui'
+import { exportCSV } from '../../printutil'
 
 interface Stats {
   staff: number
@@ -40,6 +41,7 @@ interface GpsData {
 function statusBadge(s: string) {
   if (s === 'accepted') return <span className="badge badge-green">✔ مقبول</span>
   if (s === 'rejected') return <span className="badge badge-red">✖ مرفوض</span>
+  if (s === 'done') return <span className="badge badge-blue">✅ أُنجزت</span>
   return <span className="badge badge-orange">⏳ قيد الانتظار</span>
 }
 
@@ -58,6 +60,7 @@ export function Dashboard() {
   const { data, error, loading } = useApiData<Stats>('/admin/stats', 0)
   const refs = useApiData<Referral[]>('/referrals', 0)
   const gps = useApiData<GpsData>('/gps/locations', 0)
+  const wilaya = useApiData<{ items: WilayaReportRow[]; totals: Record<string, number> }>('/admin/wilaya-report', 0)
 
   if (loading) return <p className="muted">جارٍ التحميل…</p>
   if (error) return <p style={{ color: 'var(--red)' }}>{error}</p>
@@ -244,6 +247,60 @@ export function Dashboard() {
             ))}
           </div>
         </div>
+      </div>
+
+      <div className="card mt-16">
+        <div className="flex items-center justify-between gap-8 mb-12 flex-wrap">
+          <div className="card-title" style={{ margin: 0 }}><span className="ico">🗺️</span> تقرير الولايات — التغطية الوطنية (58)</div>
+          <button
+            className="btn btn-line btn-sm"
+            onClick={() =>
+              exportCSV(
+                'wilaya-report.csv',
+                ['الولاية', 'الكادر', 'أطباء', 'ممرضون', 'إحالات', 'معلقة', 'مقبولة', 'أنجزت', 'مستشفيات/وحدات', 'حمّامات', 'صيدليات', 'وكلات', 'حجوزات', 'متابعات'],
+                (wilaya.data?.items || []).map((w) => [w.wilaya_ar, w.staff, w.doctors, w.nurses, w.referrals, w.pending, w.accepted, w.done, w.institutions, w.stations, w.pharmacies, w.agencies, w.bookings, w.followups]),
+              )
+            }
+          >⬇️ تصدير CSV</button>
+        </div>
+        {wilaya.error ? (
+          <p className="muted small">{wilaya.error}</p>
+        ) : (
+          <div className="table-wrap">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>الولاية</th><th>الكادر</th><th>إحالات</th><th>معلقة</th><th>مقبولة</th><th>أنجزت</th>
+                  <th>مؤسسات</th><th>حمّامات</th><th>صيدليات</th><th>وكلات</th><th>حجوزات</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(wilaya.data?.items || [])
+                  .filter((w) => w.staff + w.referrals + w.institutions + w.stations + w.pharmacies + w.agencies + w.bookings > 0)
+                  .sort((a, b) => b.referrals - a.referrals)
+                  .map((w) => (
+                    <tr key={w.wilaya_code}>
+                      <td><b>{w.wilaya_code}. {w.wilaya_ar}</b></td>
+                      <td>{w.staff}</td>
+                      <td>{w.referrals}</td>
+                      <td><span className="badge badge-orange">{w.pending}</span></td>
+                      <td><span className="badge badge-green">{w.accepted}</span></td>
+                      <td><span className="badge badge-blue">{w.done}</span></td>
+                      <td>{w.institutions}</td><td>{w.stations}</td><td>{w.pharmacies}</td><td>{w.agencies}</td><td>{w.bookings}</td>
+                    </tr>
+                  ))}
+                {!wilaya.loading && (wilaya.data?.items || []).filter((w) => w.staff + w.referrals > 0).length === 0 && (
+                  <tr><td colSpan={11} className="muted">لا نشاط بعد — ابدأ بإنشاء إحالات وربط المؤسسات.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {wilaya.data?.totals && (
+          <p className="small muted mt-8">
+            الإجمالي: {wilaya.data.totals.staff} كادر · {wilaya.data.totals.referrals} إحالة · {wilaya.data.totals.institutions} مؤسسة · {wilaya.data.totals.bookings} حجز علاجي
+          </p>
+        )}
       </div>
     </div>
   )

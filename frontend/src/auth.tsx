@@ -7,6 +7,7 @@ interface AuthCtx {
   ready: boolean
   login: (u: string, p: string) => Promise<User>
   logout: () => void
+  reloadUser: () => Promise<User>
 }
 
 const Ctx = createContext<AuthCtx>({
@@ -14,6 +15,7 @@ const Ctx = createContext<AuthCtx>({
   ready: false,
   login: async () => { throw new Error('no provider') },
   logout: () => {},
+  reloadUser: async () => { throw new Error('no provider') },
 })
 
 export function useAuth() {
@@ -46,7 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null)
   }, [])
 
-  return <Ctx.Provider value={{ user, ready, login, logout }}>{children}</Ctx.Provider>
+  const reloadUser = useCallback(async () => {
+    const u = await api<User>('/auth/me')
+    setUser(u)
+    return u
+  }, [])
+
+  return <Ctx.Provider value={{ user, ready, login, logout, reloadUser }}>{children}</Ctx.Provider>
 }
 
 export function useApiData<T>(path: string, refreshKey: number) {

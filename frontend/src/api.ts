@@ -46,3 +46,10 @@ export async function login(username: string, password: string): Promise<{ token
   setToken(res.token)
   return res
 }
+
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
+  await api('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ old_password: oldPassword, new_password: newPassword }),
+  })
+}

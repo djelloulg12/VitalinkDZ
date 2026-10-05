@@ -8,6 +8,7 @@ export interface User {
   wilaya_id?: number
   facility: string
   avatar: string
+  must_change_password?: boolean
 }
 
 export interface Wilaya {
@@ -60,6 +61,65 @@ export interface Referral {
   created_by?: string
   decided_at?: string
   decided_by?: string
+  outcome?: string
+  completed_at?: string
+}
+
+export interface Notification {
+  id: number
+  role: string
+  title: string
+  body: string
+  icon: string
+  entity: string
+  entity_id: number
+  link: string
+  read: boolean
+  created_at: string
+}
+
+export interface PublicStation {
+  id: number
+  name: string
+  wilaya_ar: string
+  wilaya_fr: string
+  treatments: string
+  water_temp: number
+  services: string
+  rating_avg: number
+  packages_count: number
+  min_price: number
+}
+
+export interface PublicPackage {
+  id: number
+  title: string
+  destination: string
+  nights: number
+  price: number
+  includes: string
+  treatments: string
+  station_name: string
+  agency_name: string
+}
+
+export interface WilayaReportRow {
+  wilaya_code: number
+  wilaya_ar: string
+  wilaya_fr: string
+  staff: number
+  doctors: number
+  nurses: number
+  referrals: number
+  pending: number
+  accepted: number
+  done: number
+  followups: number
+  institutions: number
+  stations: number
+  pharmacies: number
+  agencies: number
+  bookings: number
 }
 
 export interface RedAlertItem {

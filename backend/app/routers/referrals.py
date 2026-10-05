@@ -11,7 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..audit import record
 from ..crypto import decrypt_text, encrypt_text
 from ..deps import current_user, get_db, require_role
-from ..models import Institution, InstitutionLink, Referral
+from ..models import Institution, InstitutionLink, Referral, User
+from .notifications import push
 
 router = APIRouter(prefix="/api/referrals", tags=["referrals"])
 
@@ -28,6 +29,10 @@ class ReferralIn(BaseModel):
 
 class DecideIn(BaseModel):
     status: str  # accepted | rejected
+
+
+class CompleteIn(BaseModel):
+    outcome: str = ""   # نتيجة المعالجة/الخاتمة عند إغلاق الحلقة
 
 
 async def _inst(db: AsyncSession, iid: int | None) -> dict | None:
@@ -52,7 +57,17 @@ async def _serialize(db: AsyncSession, r: Referral) -> dict:
         "created_at": r.created_at.isoformat() if r.created_at else None,
         "decided_at": r.decided_at.isoformat() if r.decided_at else None,
         "decided_by": r.decided_by,
+        "outcome": r.outcome,
+        "completed_at": r.completed_at.isoformat() if r.completed_at else None,
     }
+
+
+async def _created_by_role(db: AsyncSession, r: Referral) -> str:
+    """يعيد دور الجهة المُحيلة (لإشعارها بمسار الإحالة)."""
+    if not r.created_by:
+        return "nurse"
+    u = (await db.execute(select(User).where(User.id == r.created_by))).scalar_one_or_none()
+    return u.role if u else "nurse"
 
 
 @router.get("")
@@ -76,6 +91,12 @@ async def create_referral(
                  entity_id=r.id, detail=f"إنشاء إحالة إلكترونية للمريض: {r.patient_name}{tag}", new=r.patient_name)
     await db.commit()
     await db.refresh(r)
+    # إشعار الفريق الطبي والإدارة بوصول إحالة جديدة
+    await push(db, role="admin", icon="🔄", title=f"إحالة جديدة — {r.patient_name}",
+               body=body.reason, entity="referral", entity_id=r.id, link="/admin/referrals")
+    await push(db, role="doctor", icon="🔄", title=f"إحالة بانتظار القبول — {r.patient_name}",
+               body=body.reason, entity="referral", entity_id=r.id, link="/admin/referrals")
+    await db.commit()
     return await _serialize(db, r)
 
 
@@ -97,10 +118,51 @@ async def decide_referral(
     r.decided_by = payload.get("name", "")
     if r.created_at and r.decided_at:
         r.sla_hours = round((r.decided_at - r.created_at.replace(tzinfo=timezone.utc)).total_seconds() / 3600, 1)
+    r.outcome = ""  # يُعاد تعيين النتيجة عند قرار جديد
     st = "قبول" if body.status == "accepted" else "رفض"
     await record(db, actor=r.decided_by, action="decide", entity="referral",
                  entity_id=r.id, detail=f"{st} إحالة المريض: {r.patient_name}",
                  old=f"status=pending", new=f"status={body.status}")
+    await db.commit()
+    await push(db, role="admin", icon="✅" if body.status == "accepted" else "⛔",
+               title=f"{st} إحالة — {r.patient_name}",
+               body=f"قرار الجهة المستقبِلة: {r.decided_by}", entity="referral",
+               entity_id=r.id, link="/admin/referrals")
+    await push(db, role=await _created_by_role(db, r), icon="📨",
+               title=f"عُدّلت حالة إحالتك — {r.patient_name}",
+               body=st, entity="referral", entity_id=r.id, link="/portal/doctor")
+    await db.commit()
+    await db.refresh(r)
+    return await _serialize(db, r)
+
+
+@router.post("/{referral_id}/complete")
+async def complete_referral(
+    referral_id: int,
+    body: CompleteIn,
+    payload=Depends(current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """إغلاق حلقة الإحالة: تسجيل النتيجة النهائية بعد تنفيذها (status → done)."""
+    res = await db.execute(select(Referral).where(Referral.id == referral_id))
+    r = res.scalar_one_or_none()
+    if not r:
+        raise HTTPException(status_code=404, detail="غير موجود")
+    if r.status != "accepted":
+        raise HTTPException(status_code=422, detail="لا يمكن الإغلاق إلا لإحالة مقبولة — قم بقبولها أولاً")
+    r.status = "done"
+    r.outcome = body.outcome or r.outcome
+    r.completed_at = datetime.now(timezone.utc)
+    r.decided_by = payload.get("name", "")
+    await record(db, actor=payload.get("name", ""), action="complete", entity="referral",
+                 entity_id=r.id, detail=f"إغلاق حلقة الإحالة: {r.patient_name} — {r.outcome[:120]}",
+                 old=f"status=accepted", new=f"status=done")
+    await db.commit()
+    await push(db, role="admin", icon="🎯", title=f"أُنجزت الإحالة — {r.patient_name}",
+               body=r.outcome, entity="referral", entity_id=r.id, link="/admin/referrals")
+    await push(db, role=await _created_by_role(db, r), icon="🎯",
+               title=f"اكتملت إحالتك — {r.patient_name}",
+               body=r.outcome, entity="referral", entity_id=r.id, link="/portal/doctor")
     await db.commit()
     await db.refresh(r)
     return await _serialize(db, r)

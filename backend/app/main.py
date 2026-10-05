@@ -10,8 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
 from .database import SessionLocal, init_db
 from .routers import (about, access, admin, agencies, associations, audit, auth, care, drugs,
-                      followups, gps, institutions, predict, prescriptions, presence, psych, referrals,
-                      shifts, sos, staff, thermal, wilayas, zones)
+                      followups, gps, institutions, notifications, predict, prescriptions, presence,
+                      psych, public, referrals, shifts, sos, staff, thermal, wilayas, zones)
 
 
 async def _seed():
@@ -43,7 +43,7 @@ for router in (auth.router, wilayas.router, institutions.router, staff.router, r
                followups.router, about.router, shifts.router, zones.router,
                agencies.router, thermal.router, drugs.router, predict.router,
                prescriptions.router, care.router, psych.router, sos.router, access.router,
-               presence.router):
+               presence.router, notifications.router, public.router):
     app.include_router(router)
 
 

@@ -92,6 +92,83 @@ async def stats(payload=Depends(current_user), db: AsyncSession = Depends(get_db
     }
 
 
+@router.get("/wilaya-report")
+async def wilaya_report(payload=Depends(current_user), db: AsyncSession = Depends(get_db)):
+    """تقرير الولايات (G2G): تغطية النشاط لكل ولاية من 58 — منتج الحوكمة الحكومي."""
+    from ..deps import require_role
+    require_role("admin")(payload)
+
+    rows = {w.code: {"wilaya_ar": w.name_ar, "wilaya_fr": w.name_fr, "wilaya_code": w.code,
+                     "staff": 0, "doctors": 0, "nurses": 0, "referrals": 0, "pending": 0,
+                     "accepted": 0, "done": 0, "followups": 0, "institutions": 0,
+                     "stations": 0, "pharmacies": 0, "agencies": 0, "bookings": 0}
+            for w in (await db.execute(select(Wilaya).order_by(Wilaya.code))).scalars().all()}
+
+    for kind, code, c in (await db.execute(
+            select(StaffMember.kind, StaffMember.wilaya_id, func.count(StaffMember.id))
+            .group_by(StaffMember.kind, StaffMember.wilaya_id))).all():
+        if code in rows:
+            rows[code]["staff"] += c or 0
+            key = "doctors" if kind == "doctor" else ("nurses" if kind == "nurse" else None)
+            if key:
+                rows[code][key] = c or 0
+
+    for code, status, c in (await db.execute(
+            select(Institution.wilaya_id, Referral.status, func.count(Referral.id))
+            .join(Referral, Referral.from_institution_id == Institution.id)
+            .group_by(Institution.wilaya_id, Referral.status))).all():
+        if code in rows:
+            rows[code]["referrals"] += c or 0
+            if status in ("pending", "accepted", "done"):
+                rows[code][status] += c or 0
+
+    for code, c in (await db.execute(
+            select(Institution.wilaya_id, func.count(Institution.id))
+            .group_by(Institution.wilaya_id))).all():
+        if code in rows:
+            rows[code]["institutions"] = c or 0
+
+    for code, c in (await db.execute(
+            select(ThermalStation.wilaya_id, func.count(ThermalStation.id))
+            .group_by(ThermalStation.wilaya_id))).all():
+        if code in rows:
+            rows[code]["stations"] = c or 0
+
+    for code, c in (await db.execute(
+            select(Pharmacy.wilaya_id, func.count(Pharmacy.id))
+            .group_by(Pharmacy.wilaya_id))).all():
+        if code in rows:
+            rows[code]["pharmacies"] = c or 0
+
+    for code, c in (await db.execute(
+            select(AgencyProfile.wilaya_id, func.count(AgencyProfile.id))
+            .group_by(AgencyProfile.wilaya_id))).all():
+        if code in rows:
+            rows[code]["agencies"] = c or 0
+
+    for code, c in (await db.execute(
+            select(ThermalStation.wilaya_id, func.count(ThermalBooking.id))
+            .join(ThermalBooking, ThermalBooking.station_id == ThermalStation.id)
+            .group_by(ThermalStation.wilaya_id))).all():
+        if code in rows:
+            rows[code]["bookings"] = c or 0
+
+    # المتابعات المرتبطة بإحالات (بقصد المرجعية الصحية)
+    for code, c in (await db.execute(
+            select(Institution.wilaya_id, func.count(FollowupRecord.id))
+            .join(Referral, Referral.id == FollowupRecord.referral_id)
+            .join(Institution, Institution.id == Referral.from_institution_id)
+            .group_by(Institution.wilaya_id))).all():
+        if code in rows:
+            rows[code]["followups"] = c or 0
+
+    items = [rows[c] for c in sorted(rows)]
+    totals = {k: sum(r[k] for r in items) for k in
+              ("staff", "doctors", "nurses", "referrals", "pending", "accepted", "done",
+               "followups", "institutions", "stations", "pharmacies", "agencies", "bookings")}
+    return {"items": items, "totals": totals, "count": len(items)}
+
+
 @router.post("/backup")
 async def run_backup(payload=Depends(current_user)):
     """نسخة احتياطية فورية مشفَّرة أفقية (AES-256-GCM) — تُدير يومياً أيضاً."""

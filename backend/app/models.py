@@ -27,6 +27,7 @@ class User(Base):
     wilaya_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     facility: Mapped[str] = mapped_column(String(240), default="")
     avatar: Mapped[str] = mapped_column(String(32), default="avatar-1")
+    must_change_password: Mapped[bool] = mapped_column(Boolean, default=False)  # إجبار تغيير كلمة المرور قبل المتابعة
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
 
 
@@ -82,7 +83,7 @@ class Referral(Base):
     to_institution_id: Mapped[int | None] = mapped_column(Integer, index=True, nullable=True)
     reason: Mapped[str] = mapped_column(Text, default="")
     medical_note: Mapped[str] = mapped_column(Text, default="")
-    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)  # pending | accepted | rejected
+    status: Mapped[str] = mapped_column(String(20), default="pending", index=True)  # pending | accepted | rejected | done
     severity: Mapped[str] = mapped_column(String(12), default="normal")            # normal | red (Red Alert)
     sla_hours: Mapped[float | None] = mapped_column(Float, nullable=True)          # ساعة بين الإصدار والقرار
     created_by: Mapped[int | None] = mapped_column(Integer, nullable=True)
@@ -90,6 +91,8 @@ class Referral(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     decided_by: Mapped[str] = mapped_column(String(160), default="")
+    outcome: Mapped[str] = mapped_column(Text, default="")                        # نتيجة المعالجة عند إغلاق الحلقة
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
 
 class InstitutionLink(Base):
@@ -489,3 +492,40 @@ class Presence(Base):
     acc: Mapped[float] = mapped_column(Float, default=0)
     online: Mapped[bool] = mapped_column(Boolean, default=True)
     seen_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
+# =================  المرحلة 3: الإشعارات الموحّدة + الاستعلام السياحي الدولي  =================
+
+class Notification(Base):
+    """إشعار موحّد داخل المنصة — يُوجَّه إلى دور محدد (و/أو مستخدم) بلا حاجة لرسائل خارجية."""
+
+    __tablename__ = "notifications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    role: Mapped[str] = mapped_column(String(32), index=True)          # الدور المستهدف
+    title: Mapped[str] = mapped_column(String(240), default="")
+    body: Mapped[str] = mapped_column(Text, default="")
+    icon: Mapped[str] = mapped_column(String(16), default="🔔")
+    entity: Mapped[str] = mapped_column(String(32), default="")
+    entity_id: Mapped[int] = mapped_column(Integer, default=0)
+    link: Mapped[str] = mapped_column(String(160), default="")
+    read: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)
+
+
+class InternationalInquiry(Base):
+    """استعلام دخول من زائر دولي مهتم بالسياحة العلاجية في الجزائر (قناة دخل مستقبلية)."""
+
+    __tablename__ = "international_inquiries"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(160))
+    email: Mapped[str] = mapped_column(String(160), default="")
+    country: Mapped[str] = mapped_column(String(80), default="")
+    treatment: Mapped[str] = mapped_column(String(240), default="")
+    destination: Mapped[str] = mapped_column(String(120), default="")
+    nights: Mapped[str] = mapped_column(String(40), default="")
+    lang: Mapped[str] = mapped_column(String(8), default="fr")
+    message: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(20), default="new")     # new | contacted | won
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_now)

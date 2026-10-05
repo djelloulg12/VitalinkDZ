@@ -1,6 +1,8 @@
 import { NavLink, Navigate, NavLinkProps, Outlet } from 'react-router-dom'
+import { useState } from 'react'
 import { useAuth } from '../auth'
 import { Avatar } from '../ui'
+import { ChangePasswordModal } from '../notifications'
 
 const NAV: { to: string; icon: string; label: string }[] = [
   { to: '/admin', icon: '📊', label: 'نظرة عامة' },
@@ -35,6 +37,7 @@ function NavItem({ to, children, end }: { to: string; children: React.ReactNode;
 
 export function AdminLayout() {
   const { user, logout } = useAuth()
+  const [changeOpen, setChangeOpen] = useState(false)
   if (!user) return <Navigate to="/login" replace />
   if (user.role !== 'admin') return <Navigate to={`/portal/${user.role}`} replace />
 
@@ -58,6 +61,7 @@ export function AdminLayout() {
               <small>{user.facility || 'لوحة المدير الوطني'}</small>
             </div>
           </div>
+          <button className="btn btn-ghost btn-sm" onClick={() => setChangeOpen(true)} title="تغيير كلمة المرور">🔑</button>
           <button className="btn btn-ghost btn-sm" onClick={logout}>خروج</button>
         </div>
       </header>
@@ -111,6 +115,10 @@ export function AdminLayout() {
           ))}
         </div>
       </nav>
+
+      {changeOpen && (
+        <ChangePasswordModal onCancel={() => setChangeOpen(false)} onDone={() => setChangeOpen(false)} />
+      )}
     </div>
   )
 }

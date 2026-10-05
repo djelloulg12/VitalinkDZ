@@ -54,6 +54,7 @@ export function Modal({
   children,
   foot,
   size,
+  closable = true,
 }: {
   title: string
   icon?: string
@@ -61,15 +62,16 @@ export function Modal({
   children: React.ReactNode
   foot?: React.ReactNode
   size?: string
+  closable?: boolean
 }) {
   const closeRef = React.useRef<HTMLButtonElement>(null)
   useEffect(() => {
     const orig = document.body.style.overflow
     const prevFocus = document.activeElement as HTMLElement | null
     document.body.style.overflow = 'hidden'
-    closeRef.current?.focus()
+    if (closable) closeRef.current?.focus()
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape' && closable) onClose()
     }
     window.addEventListener('keydown', onKey)
     return () => {
@@ -77,13 +79,13 @@ export function Modal({
       window.removeEventListener('keydown', onKey)
       prevFocus?.focus()
     }
-  }, [])
+  }, [closable])
   return (
     <div
       className="modal-overlay"
       role="presentation"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
+        if (e.target === e.currentTarget && closable) onClose()
       }}
     >
       <div className={`modal ${size || ''}`} role="dialog" aria-modal="true" aria-label={title}>
@@ -92,7 +94,7 @@ export function Modal({
             {icon || '📋'}
           </span>
           <h3>{title}</h3>
-          <button className="icon-btn" ref={closeRef} aria-label="إغلاق" onClick={onClose}>✕</button>
+          {closable && <button className="icon-btn" ref={closeRef} aria-label="إغلاق" onClick={onClose}>✕</button>}
         </div>
         <div className="modal-body">{children}</div>
         {foot && <div className="modal-foot">{foot}</div>}

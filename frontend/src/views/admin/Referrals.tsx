@@ -10,6 +10,7 @@ const EMPTY_REF = { patient_name: '', from_institution_id: '', to_institution_id
 function statusBadge(s: string) {
   if (s === 'accepted') return <span className="badge badge-green">✔ مقبول</span>
   if (s === 'rejected') return <span className="badge badge-red">✖ مرفوض</span>
+  if (s === 'done') return <span className="badge badge-blue">✅ أُنجزت</span>
   return <span className="badge badge-orange">⏳ قيد الانتظار</span>
 }
 
@@ -52,6 +53,18 @@ export function Referrals() {
     try {
       await api(`/referrals/${id}/decide`, { method: 'POST', body: JSON.stringify({ status }) })
       toast(status === 'accepted' ? 'قُبلت الإحالة' : 'رُفضت الإحالة', 'success')
+      setRefresh((x) => x + 1)
+    } catch (err: any) {
+      toast(err.message, 'error')
+    }
+  }
+
+  const completeRef = async (r: Referral) => {
+    const outcome = window.prompt('سجّل نتيجة المعالجة لإغلاق حلقة الإحالة (مثال: تمت المعاينة وضبط البروتوكول):')
+    if (outcome === null) return
+    try {
+      await api(`/referrals/${r.id}/complete`, { method: 'POST', body: JSON.stringify({ outcome }) })
+      toast('أُغلقت حلقة الإحالة ووُثّقت النتيجة', 'success')
       setRefresh((x) => x + 1)
     } catch (err: any) {
       toast(err.message, 'error')
@@ -133,6 +146,7 @@ export function Referrals() {
         <span className="badge badge-gray">المجموع: {referrals.length}</span>
         <span className="badge badge-orange">قيد الانتظار: {referrals.filter((r) => r.status === 'pending').length}</span>
         <span className="badge badge-green">مقبول: {referrals.filter((r) => r.status === 'accepted').length}</span>
+        <span className="badge badge-blue">أُنجزت: {referrals.filter((r) => r.status === 'done').length}</span>
         <span className="badge badge-red">مرفوض: {referrals.filter((r) => r.status === 'rejected').length}</span>
         {reds.data && reds.data.count > 0 && <span className="badge badge-red">🚨 RED ALERT معلقة: {reds.data.count}</span>}
       </div>
@@ -205,7 +219,19 @@ export function Referrals() {
                 <button className="btn btn-danger btn-sm" style={{ flex: 1 }} onClick={() => decide(r.id, 'rejected')}>✖ رفض</button>
               </div>
             )}
-            {r.status !== 'pending' && <div className="small muted mt-12">◉ قررت الجهة المستقبِلة: {r.decided_by || '—'}</div>}
+            {r.status === 'accepted' && (
+              <button className="btn btn-primary btn-sm mt-12" style={{ width: '100%' }} onClick={() => completeRef(r)}>
+                🎯 إنجاز الإحالة وإغلاق الحلقة
+              </button>
+            )}
+            {r.status !== 'pending' && (
+              <div className="small muted mt-12">◉ قررت الجهة المستقبِلة: {r.decided_by || '—'}</div>
+            )}
+            {r.status === 'done' && r.outcome && (
+              <div className="ref-outcome mt-12">
+                <b>النتيجة: </b>{r.outcome}
+              </div>
+            )}
           </div>
         ))}
       </div>
