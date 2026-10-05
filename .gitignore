@@ -28,6 +28,9 @@ frontend/dist/
 frontend/.vite/
 *.tsbuildinfo
 
+# ---- ناتج البناء المحلي (تُبنى داخل Docker) ----
+backend/app/static/
+
 # ---- Capacitor ----
 .capacitor/
 frontend/android/app/src/main/assets/public/*

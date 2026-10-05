@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from .config import settings
 
-engine = create_async_engine(settings.database_url, echo=False, future=True)
+engine = create_async_engine(settings.normalized_database_url, echo=False, future=True,
+                             pool_pre_ping=True)
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 # أعمدة جديدة تُضاف لقواعد البيانات القائمة (SQLite) دون مسح البيانات — تُنفَّذ عند كل إقلاع بأمان.
@@ -19,7 +20,11 @@ _SCHEMA_PATCHES: list[tuple[str, str, str]] = [
 async def init_db() -> None:
     from . import models  # noqa: F401
 
-    Path(settings.database_url.replace("sqlite+aiosqlite:///", "").rsplit("?", 1)[0]).parent.mkdir(parents=True, exist_ok=True)
+    if settings.is_sqlite:
+        db_path = settings.normalized_database_url.replace("sqlite+aiosqlite:///", "").rsplit("?", 1)[0]
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+    else:
+        Path(settings.storage_path).mkdir(parents=True, exist_ok=True)
     async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.create_all)
     await _patch_schema()

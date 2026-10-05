@@ -1,0 +1,29 @@
+# Render Blueprint — نشر خدمة واحدة: الواجهة + الخلفية معاً
+# الاستعمال: اربط المستودع في Render ثم اختر "Apply" (أو New > Blueprint)
+# ملاحظة: أدخل رابط قاعدة البيانات في متغيّر DATABASE_URL (Neon/Supabase مجاني)
+services:
+  - type: web
+    name: vitalink-dz
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # ← الصق رابط Postgres هنا (Neon أو Supabase)
+      - key: JWT_SECRET
+        generateValue: true  # ← يُولَّد تلقائياً وآمن
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEFAULT_PASSWORD
+        value: demo123
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: FORCE_PASSWORD_CHANGE
+        value: "false"       # اجعلها true عند الإطلاق الرسمي
+      - key: DEMO_MODE
+        value: "true"        # اجعلها false عند الإطلاق الرسمي
+      - key: CORS_ORIGINS
+        sync: false          # ← ضع نطاقك، أو اتركه فارغاً (نشر ملف واحد بلا CORS)

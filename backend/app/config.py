@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     database_url: str = f"sqlite+aiosqlite:///{_ROOT / 'data' / 'vitalink.db'}"
     storage_path: str = str(_ROOT / "storage")
 
+    # مجلد الواجهة المبنية (dist) الذي تخدمه الخلفية في الإنتاج — تنسخه صورة Docker إلى app/static
+    static_dir: str = str(_ROOT / "backend" / "app" / "static")
+    # الرابط العام بعد النشر (يُستخدم في ملف robots/الوصف)
+    public_base_url: str = ""
+
     default_password: str = "demo123"
     jwt_secret: str = "vitalink-dz-dev-secret"
     secret_key: str = "vitalink-dz-dev-secret"
@@ -39,6 +44,20 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def is_sqlite(self) -> bool:
+        return self.database_url.startswith("sqlite")
+
+    @property
+    def normalized_database_url(self) -> str:
+        """توحيد رابط القاعدة: Neon/Supabase تعطي postgres:// → نحوّلها إلى asyncpg."""
+        url = self.database_url.strip()
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgresql://"):
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
 
 
 settings = Settings()

@@ -1,0 +1,26 @@
+# ===== رعايتي DZ — تشغيل محلي بملف واحد =====
+# الاستعمال:  docker compose up --build   ثم افتح http://localhost:8100
+services:
+  app:
+    build: .
+    image: vitalink-dz:latest
+    ports:
+      - "8100:8100"
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+      # قاعدة البيانات: اتركه بدون DATABASE_URL لاستعمال SQLite داخل الحاوية
+      # (أو ضع رابط Neon/Supabase هنا للاستمرارية)
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-real-deployment}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-real-deployment}
+      DEMO_MODE: "true"
+      FORCE_PASSWORD_CHANGE: "false"
+    volumes:
+      # يبقى ملف SQLite عند إعادة تشغيل الحاوية
+      - vitalink-data:/app/data
+      - vitalink-storage:/app/storage
+    restart: unless-stopped
+
+volumes:
+  vitalink-data:
+  vitalink-storage:

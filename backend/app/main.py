@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .database import SessionLocal, init_db
@@ -55,3 +58,28 @@ async def health():
         "environment": settings.environment,
         "role_seed_password": settings.default_password,
     }
+
+
+# ===== الإنتاج: خدمة الواجهة المبنية من الخادم نفسه (ملف واحد/منفذ واحد بلا CORS) =====
+_STATIC = Path(settings.static_dir)
+
+if _STATIC.is_dir():
+    app.mount("/assets", StaticFiles(directory=_STATIC / "assets"), name="assets")
+
+    @app.get("/{spa_path:path}", include_in_schema=False)
+    async def spa(spa_path: str):
+        """يخدم الملفات الثابتة إن وُجدت، وإلا index.html لدعم روابط SPA العميقة."""
+        if spa_path and not spa_path.startswith("api/"):
+            candidate = (_STATIC / spa_path).resolve()
+            if candidate.is_file() and _STATIC.resolve() in candidate.parents:
+                return FileResponse(candidate)
+        return FileResponse(_STATIC / "index.html")
+
+else:  # بيئة التطوير (لا يوجد dist) — رسالة واضحة بدل 404 غامض
+    @app.get("/", include_in_schema=False)
+    async def dev_hint():
+        return {
+            "message": "الواجهة تُقدَّم في التطوير عبر Vite على المنفذ 5173.",
+            "api_docs": "/docs",
+            "static_built": False,
+        }

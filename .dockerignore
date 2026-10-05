@@ -1,0 +1,15 @@
+# ملفات لا نحتاجها داخل الصورة (تُبطئ البناء وتُكبّره)
+.git
+.gitignore
+**/node_modules
+frontend/android
+frontend/ios
+frontend/dist
+backend/data
+backend/storage
+*.log
+*.db
+.env
+.env.*
+!.env.example
+tools
