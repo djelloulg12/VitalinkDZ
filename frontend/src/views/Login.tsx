@@ -58,6 +58,7 @@ export function Login() {
   return (
     <div className="login-shell">
       <aside className="login-brand-panel">
+        <div className="hero-orbs" aria-hidden="true"><i /><i /><i /></div>
         <div className="login-brand-top">
           <div className="brand-logo">❤️</div>
           <div>

@@ -810,3 +810,116 @@ table.tbl { width:100%; border-collapse:separate; border-spacing:0; font-size:14
   .land-nav { display: none; }
   .form-row { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   طبقة الحيوية — حركات ولمسات حيّة أنيقة (مراعية لـ reduced-motion)
+   ============================================================ */
+
+/* 1) نبض القلب للشعار في مواضع الهوية الرئيسية */
+@keyframes heartbeat { 0%,100% { transform: scale(1); } 8% { transform: scale(1.09); } 16% { transform: scale(1); } 24% { transform: scale(1.06); } 32% { transform: scale(1); } }
+.login-head .brand-logo, .login-brand-top .brand-logo, .page-hero .brand-logo,
+.landing .land-top .brand-logo, .tour .land-top .brand-logo { animation: heartbeat 3.4s ease-in-out infinite; }
+
+/* 2) طفو ناعم عام */
+@keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes floatY2 { 0%,100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-16px) translateX(8px); } 66% { transform: translateY(6px) translateX(-8px); } }
+
+/* 3) كرات ضوئية عائمة داخل الألواح البنفسجية */
+.hero-orbs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+.hero-orbs i {
+  position: absolute; border-radius: 50%; opacity: .3; will-change: transform;
+  background: radial-gradient(circle, rgba(255,255,255,.9), rgba(255,255,255,0) 68%);
+  animation: floatY2 12s ease-in-out infinite;
+}
+.hero-orbs i:nth-child(1) { width: 260px; height: 260px; top: 4%; inset-inline-start: 8%; animation-duration: 13s; }
+.hero-orbs i:nth-child(2) { width: 180px; height: 180px; bottom: 10%; inset-inline-end: 14%; animation-duration: 10s; animation-delay: -4s; opacity: .22; }
+.hero-orbs i:nth-child(3) { width: 120px; height: 120px; top: 42%; inset-inline-end: 34%; animation-duration: 16s; animation-delay: -8s; opacity: .16; }
+
+/* 4) شفق متحرك على الخلفيات المتدرجة */
+@keyframes aurora { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+.land-hero { background-size: 210% 210%; animation: aurora 18s ease infinite; }
+.tour-hero { background-size: 210% 210%; animation: aurora 20s ease infinite; }
+.login-brand-panel::before { background-size: 170% 170%; animation: aurora 16s ease infinite; }
+.page-hero::after { animation: floatY 9s ease-in-out infinite; }
+.page-hero::before { animation: floatY 11s ease-in-out infinite; animation-delay: -5s; }
+
+/* 5) دخول متتابع للعناصر عند الظهور (reveal) */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); }
+.reveal.in { opacity: 1; transform: none; }
+@keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.reveal.in > * { animation: riseIn .6s cubic-bezier(.2,.7,.2,1) both; }
+.stagger.in > *:nth-child(1) { animation-delay: .03s; }
+.stagger.in > *:nth-child(2) { animation-delay: .08s; }
+.stagger.in > *:nth-child(3) { animation-delay: .13s; }
+.stagger.in > *:nth-child(4) { animation-delay: .18s; }
+.stagger.in > *:nth-child(5) { animation-delay: .23s; }
+.stagger.in > *:nth-child(6) { animation-delay: .28s; }
+.stagger.in > *:nth-child(7) { animation-delay: .33s; }
+.stagger.in > *:nth-child(8) { animation-delay: .38s; }
+.stagger.in > *:nth-child(9) { animation-delay: .43s; }
+.stagger.in > *:nth-child(10) { animation-delay: .48s; }
+
+/* 6) دخول بطاقات الأدوار في شاشة الدخول */
+.role-card { animation: riseIn .55s cubic-bezier(.2,.7,.2,1) both; }
+.role-card:nth-child(1) { animation-delay: .05s; } .role-card:nth-child(2) { animation-delay: .09s; }
+.role-card:nth-child(3) { animation-delay: .13s; } .role-card:nth-child(4) { animation-delay: .17s; }
+.role-card:nth-child(5) { animation-delay: .21s; } .role-card:nth-child(6) { animation-delay: .25s; }
+.role-card:nth-child(7) { animation-delay: .29s; } .role-card:nth-child(8) { animation-delay: .33s; }
+.role-card:nth-child(9) { animation-delay: .37s; } .role-card:nth-child(10) { animation-delay: .41s; }
+.role-card:hover .r-ico { transform: rotate(-7deg) scale(1.12); }
+.role-card .r-ico { transition: transform .3s cubic-bezier(.2,.7,.2,1); }
+
+/* 7) ميلان لطيف للأيقونات عند المرور على البطاقات */
+.land-feat-ico, .s-ico, .notify-ico { transition: transform .3s cubic-bezier(.2,.7,.2,1); }
+.land-feat:hover .land-feat-ico { transform: rotate(-7deg) scale(1.12); }
+.stat-card:hover .s-ico { transform: rotate(6deg) scale(1.08); }
+.land-role:hover span { transform: scale(1.22) rotate(-6deg); }
+.land-role span { display: inline-block; transition: transform .3s cubic-bezier(.2,.7,.2,1); }
+.land-step-n { animation: floatY 4s ease-in-out infinite; }
+.land-step:nth-child(2) .land-step-n { animation-delay: -1.3s; }
+.land-step:nth-child(3) .land-step-n { animation-delay: -2.6s; }
+
+/* 8) نص متدرج متحرك للعناوين والأسعار */
+@keyframes gradSlide { to { background-position: 300% 0; } }
+.grad-text {
+  background: linear-gradient(90deg, var(--purple-700), var(--purple), #A855F7, var(--purple-700));
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: gradSlide 9s linear infinite;
+}
+.tour .land-sec-head h2.grad-text { background-image: linear-gradient(90deg, #0F766E, #0D9488, #2DD4BF, #0F766E); }
+.tour-price b { background: linear-gradient(90deg, var(--purple-600), #A855F7, var(--purple-600)); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: gradSlide 5s linear infinite; }
+
+/* 9) شريط تقدّم التمرير أعلى الشاشة */
+.scroll-progress {
+  position: fixed; top: 0; inset-inline: 0; height: 3px; z-index: 500; border-radius: 999px;
+  background: linear-gradient(90deg, #8B5CF6, #EC4899, #F59E0B);
+  transform-origin: right; transform: scaleX(0); transition: transform .12s linear; will-change: transform;
+}
+[dir="ltr"] .scroll-progress { transform-origin: left; }
+
+/* 10) جرس الإشعارات ينبض عند وجود غير مقروء */
+.notify-dot { animation: dotPulse 2.4s ease-in-out infinite; }
+@keyframes dotPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+/* 11) أيقونات التنبيهات (toast) دائرية ملوّنة */
+.toast > span:first-child {
+  width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0;
+  background: var(--purple-100); color: var(--purple-600); font-size: 13px; font-weight: 700;
+}
+.toast-success > span:first-child { background: var(--green-100); color: var(--green-2); }
+.toast-error > span:first-child { background: var(--red-100); color: var(--red-2); }
+.toast-warning > span:first-child { background: var(--orange-100); color: #B45309; }
+
+/* 12) حركات إضافية لطيفة */
+.badge { transition: transform .18s ease; }
+.badge:hover { transform: translateY(-1px) scale(1.04); }
+.empty-state .big { animation: floatY 3.6s ease-in-out infinite; }
+.login-brand-mid .feat { transition: transform .2s ease, background .2s ease; }
+.login-brand-mid .feat:hover { transform: translateY(-2px); background: rgba(255,255,255,.2); }
+.land-nav a { position: relative; }
+.land-nav a::after { content: ""; position: absolute; bottom: -5px; inset-inline: 0; height: 2px; border-radius: 2px; background: var(--purple); transform: scaleX(0); transform-origin: right; transition: transform .25s ease; }
+[dir="ltr"] .land-nav a::after { transform-origin: left; }
+.land-nav a:hover::after { transform: scaleX(1); }
+.tour-station:hover .badge-gold, .tour-pack:hover .badge-gold { transform: scale(1.12) rotate(-5deg); }
+.tour-station .badge, .tour-pack .badge { transition: transform .3s cubic-bezier(.2,.7,.2,1); }
+.page-hero { animation: viewIn .5s ease both; }

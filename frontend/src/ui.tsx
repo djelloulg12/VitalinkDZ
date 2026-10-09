@@ -151,3 +151,68 @@ export function EmptyState({ icon, text }: { icon?: string; text?: string }) {
     </div>
   )
 }
+
+/** دخول متتابع عند ظهور العنصر في الشاشة — يمنح الواجهات إحساساً حياً. */
+export function Reveal({
+  children,
+  className = '',
+  delay = 0,
+}: {
+  children: React.ReactNode
+  className?: string
+  delay?: number
+}) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [shown, setShown] = React.useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el || shown) return
+    // حماية: لا يبقى أي محتوى محجوباً إن لم يعمل المراقب (أو خارج الشاشة في لقطة/طباعة).
+    const safety = window.setTimeout(() => setShown(true), 2200)
+    if (!('IntersectionObserver' in window)) {
+      setShown(true)
+      return () => window.clearTimeout(safety)
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            setShown(true)
+            io.disconnect()
+          }
+        }
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -30px 0px' },
+    )
+    io.observe(el)
+    return () => {
+      window.clearTimeout(safety)
+      io.disconnect()
+    }
+  }, [shown])
+  return (
+    <div ref={ref} className={`reveal ${shown ? 'in' : ''} ${className}`} style={delay ? { transitionDelay: `${delay}ms` } : undefined}>
+      {children}
+    </div>
+  )
+}
+
+/** شريط تقدّم التمرير أعلى الشاشة — لمسة حيّة متدرجة. */
+export function ScrollProgress() {
+  const [p, setP] = React.useState(0)
+  useEffect(() => {
+    const on = () => {
+      const h = document.documentElement
+      const max = h.scrollHeight - h.clientHeight
+      setP(max > 4 ? Math.min(1, h.scrollTop / max) : 0)
+    }
+    on()
+    window.addEventListener('scroll', on, { passive: true })
+    window.addEventListener('resize', on)
+    return () => {
+      window.removeEventListener('scroll', on)
+      window.removeEventListener('resize', on)
+    }
+  }, [])
+  return <div className="scroll-progress" style={{ transform: `scaleX(${p})` }} aria-hidden="true" />
+}

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './auth'
 import { Login } from './views/Login'
 import { Placeholder } from './views/Placeholder'
 import { NotificationBell, ChangePasswordModal } from './notifications'
+import { ScrollProgress } from './ui'
 import { AboutPage } from './views/public/AboutPage'
 import { PublicAssociations } from './views/public/PublicAssociations'
 import { Landing } from './views/public/Landing'
@@ -141,6 +142,7 @@ export default function App() {
         <Router />
         <ForceChangeGate />
         <BellLayer />
+        <ScrollProgress />
       </AuthProvider>
     </BrowserRouter>
   )

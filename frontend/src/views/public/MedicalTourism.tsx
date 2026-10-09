@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api'
 import { PublicPackage, PublicStation } from '../../types'
-import { Field, toast } from '../../ui'
+import { Field, toast, Reveal } from '../../ui'
 
 type Lang = 'ar' | 'fr' | 'en'
 
@@ -147,6 +147,7 @@ export function MedicalTourism() {
       </header>
 
       <section className="land-hero tour-hero">
+        <div className="hero-orbs" aria-hidden="true"><i /><i /><i /></div>
         <div className="land-hero-inner">
           <span className="badge badge-gold land-badge">🌍 {lang === 'ar' ? 'بوابتك الدولية' : lang === 'fr' ? 'Votre porte internationale' : 'Your international gateway'}</span>
           <h1>{t.title}</h1>
@@ -156,8 +157,8 @@ export function MedicalTourism() {
 
       <main className="land-main">
         <section className="land-section">
-          <div className="land-sec-head"><h2>{t.stations_h}</h2></div>
-          <div className="tour-stations">
+          <Reveal className="land-sec-head"><h2 className="grad-text">{t.stations_h}</h2></Reveal>
+          <Reveal className="stagger tour-stations" delay={80}>
             {(stations ?? []).map((s) => (
               <div key={s.id} className="tour-station">
                 <div className="flex items-center justify-between gap-8">
@@ -178,12 +179,12 @@ export function MedicalTourism() {
               </div>
             ))}
             {stations && stations.length === 0 && <p className="muted">{t.empty}</p>}
-          </div>
+          </Reveal>
         </section>
 
         <section className="land-section">
-          <div className="land-sec-head"><h2>{t.packages_h}</h2></div>
-          <div className="tour-packs">
+          <Reveal className="land-sec-head"><h2 className="grad-text">{t.packages_h}</h2></Reveal>
+          <Reveal className="stagger tour-packs" delay={80}>
             {(packages ?? []).map((p) => (
               <div key={p.id} className="tour-pack">
                 <span className="badge badge-gold" style={{ alignSelf: 'flex-start' }}>🌍</span>
@@ -195,12 +196,12 @@ export function MedicalTourism() {
               </div>
             ))}
             {packages && packages.length === 0 && <p className="muted">{t.empty}</p>}
-          </div>
+          </Reveal>
         </section>
 
         <section className="land-section tour-inquiry">
-          <div className="land-sec-head"><h2>{t.inquiry_h}</h2></div>
-          <div className="card" style={{ maxWidth: 720, margin: '0 auto', padding: 24 }}>
+          <Reveal className="land-sec-head"><h2 className="grad-text">{t.inquiry_h}</h2></Reveal>
+          <Reveal><div className="card" style={{ maxWidth: 720, margin: '0 auto', padding: 24 }}>
             {sent ? (
               <div className="alert alert-success mb-8">{t.sent} <Link to="/login" className="btn btn-gold btn-sm mt-8">← {t.login}</Link></div>
             ) : (
@@ -227,7 +228,7 @@ export function MedicalTourism() {
               </form>
             )}
             <p className="small muted mt-16" style={{ lineHeight: 1.8 }}>🩺 {t.note}</p>
-          </div>
+          </div></Reveal>
         </section>
       </main>
 

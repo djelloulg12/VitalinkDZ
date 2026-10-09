@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ROLE_INFO } from '../../types'
+import { Reveal } from '../../ui'
 
 type Lang = 'ar' | 'fr' | 'en'
 
@@ -152,6 +153,7 @@ export function Landing() {
       </header>
 
       <section className="land-hero">
+        <div className="hero-orbs" aria-hidden="true"><i /><i /><i /></div>
         <div className="land-hero-inner">
           <span className="badge badge-white land-badge">{t.badge}</span>
           <h1>{t.title}</h1>
@@ -160,18 +162,18 @@ export function Landing() {
             <Link className="btn btn-primary btn-lg" to="/login">{t.cta_login} ←</Link>
             <Link className="btn btn-gold btn-lg" to="/tourism">🌍 {t.cta_tourism}</Link>
           </div>
-          <div className="land-stats">
+          <Reveal className="stagger land-stats" delay={120}>
             <div className="land-stat"><b>{t.stats_1}</b><span>{t.stats_1l}</span></div>
             <div className="land-stat"><b>{t.stats_2}</b><span>{t.stats_2l}</span></div>
             <div className="land-stat"><b>{t.stats_3}</b><span>{t.stats_3l}</span></div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       <main className="land-main">
         <section className="land-section">
-          <div className="land-sec-head"><h2>{t.features_h}</h2><p>{t.features_hs}</p></div>
-          <div className="land-feats">
+          <Reveal className="land-sec-head"><h2 className="grad-text">{t.features_h}</h2><p>{t.features_hs}</p></Reveal>
+          <Reveal className="stagger land-feats" delay={80}>
             {[
               ['📁', t.f1, t.f1d],
               ['🔄', t.f2, t.f2d],
@@ -186,24 +188,24 @@ export function Landing() {
                 <p>{d}</p>
               </div>
             ))}
-          </div>
+          </Reveal>
         </section>
 
         <section className="land-section">
-          <div className="land-sec-head"><h2>{t.roles_h}</h2></div>
-          <div className="land-roles">
+          <Reveal className="land-sec-head"><h2 className="grad-text">{t.roles_h}</h2></Reveal>
+          <Reveal className="stagger land-roles" delay={80}>
             {roles.map((r) => (
               <div key={r} className="land-role">
                 <span>{ROLE_INFO[r].icon}</span>
                 <b>{ROLE_INFO[r].title}</b>
               </div>
             ))}
-          </div>
+          </Reveal>
         </section>
 
         <section className="land-section">
-          <div className="land-sec-head"><h2>{t.how_h}</h2></div>
-          <div className="land-steps">
+          <Reveal className="land-sec-head"><h2 className="grad-text">{t.how_h}</h2></Reveal>
+          <Reveal className="stagger land-steps" delay={80}>
             {[['1', t.h1, t.h1d], ['2', t.h2, t.h2d], ['3', t.h3, t.h3d]].map(([n, h, d]) => (
               <div key={n} className="land-step">
                 <div className="land-step-n">{n}</div>
@@ -211,10 +213,10 @@ export function Landing() {
                 <p>{d}</p>
               </div>
             ))}
-          </div>
+          </Reveal>
         </section>
 
-        <div className="land-trust">{t.trust}</div>
+        <Reveal><div className="land-trust">{t.trust}</div></Reveal>
       </main>
 
       <footer className="land-foot">
