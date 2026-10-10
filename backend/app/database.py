@@ -1,12 +1,40 @@
 from __future__ import annotations
 
+import ssl as _ssl
+from datetime import date, datetime, timezone
 from pathlib import Path
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from .config import settings
 
-engine = create_async_engine(settings.normalized_database_url, echo=False, future=True,
-                             pool_pre_ping=True)
+# asyncpg تفهم `ssl=<SSLContext>` وليست `sslmode=...` — نحوّل الوسم إلى كائن.
+_engine_kwargs = dict(echo=False, future=True, pool_pre_ping=True)
+if settings.db_ssl_mode and not settings.is_sqlite:
+    _ctx = _ssl.create_default_context()
+    if settings.db_ssl_mode == "require":
+        _ctx.check_hostname = False
+        _ctx.verify_mode = _ssl.CERT_NONE
+    _engine_kwargs["connect_args"] = {"ssl": _ctx}
+
+engine = create_async_engine(settings.normalized_database_url, **_engine_kwargs)
+
+
+def _naive_utc(value):
+    """توافق PostgreSQL: تحويل أي datetime حامل للمنطقة الزمنية إلى UTC بلا منطقة."""
+    if isinstance(value, datetime):
+        return value.astimezone(timezone.utc).replace(tzinfo=None) if value.tzinfo else value
+    if isinstance(value, dict):
+        return {k: _naive_utc(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return type(value)(_naive_utc(v) for v in value)
+    return value
+
+
+if not settings.is_sqlite:
+    @event.listens_for(engine.sync_engine, "before_cursor_execute", retval=True)
+    def _dt_compat(conn, cursor, statement, parameters, context, executemany):
+        return statement, _naive_utc(parameters)
 SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 # أعمدة جديدة تُضاف لقواعد البيانات القائمة (SQLite) دون مسح البيانات — تُنفَّذ عند كل إقلاع بأمان.
