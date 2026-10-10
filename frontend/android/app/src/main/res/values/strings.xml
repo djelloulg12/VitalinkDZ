@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">رعايتي DZ</string>
-    <string name="title_activity_main">رعايتي DZ</string>
+    <string name="app_name">Vital DZ</string>
+    <string name="title_activity_main">Vital DZ</string>
     <string name="package_name">dz.riayati.vitalink</string>
     <string name="custom_url_scheme">dz.riayati.vitalink</string>
 </resources>

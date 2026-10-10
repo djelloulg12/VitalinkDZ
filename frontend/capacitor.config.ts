@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli'
 // تكوين التطبيق الأصلي — يُبنى من نفس كود الويب (Android + iOS)
 const config: CapacitorConfig = {
   appId: 'dz.riayati.vitalink',
-  appName: 'رعايتي DZ',
+  appName: 'Vital DZ',
   webDir: 'dist',
   backgroundColor: '#F7F6FB',
   server: {
