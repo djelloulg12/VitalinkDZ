@@ -52,7 +52,11 @@ async def init_db() -> None:
         db_path = settings.normalized_database_url.replace("sqlite+aiosqlite:///", "").rsplit("?", 1)[0]
         Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     else:
-        Path(settings.storage_path).mkdir(parents=True, exist_ok=True)
+        try:
+            Path(settings.storage_path).mkdir(parents=True, exist_ok=True)
+        except OSError:
+            # بيئة سحابية بملفystem للقراءة فقط — النسخ الاحتياطي يسقط بسلام
+            pass
     async with engine.begin() as conn:
         await conn.run_sync(models.Base.metadata.create_all)
     await _patch_schema()

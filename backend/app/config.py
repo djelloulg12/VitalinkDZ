@@ -9,6 +9,18 @@ _ROOT = Path(__file__).resolve().parents[2]
 load_dotenv(_ROOT / ".env")
 
 
+def _default_static_dir() -> str:
+    """مسار الواجهة المبنية: محلياً backend/app/static، وفي السحابة app/static بجذر النشر."""
+    candidates = (
+        _ROOT / "backend" / "app" / "static",  # بنية git المحلية
+        Path(__file__).resolve().parent / "static",  # بنية النشر السحابي (app/static)
+    )
+    for candidate in candidates:
+        if candidate.is_dir():
+            return str(candidate)
+    return str(candidates[0])
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
@@ -21,7 +33,7 @@ class Settings(BaseSettings):
     storage_path: str = str(_ROOT / "storage")
 
     # مجلد الواجهة المبنية (dist) الذي تخدمه الخلفية في الإنتاج — تنسخه صورة Docker إلى app/static
-    static_dir: str = str(_ROOT / "backend" / "app" / "static")
+    static_dir: str = _default_static_dir()
     # الرابط العام بعد النشر (يُستخدم في ملف robots/الوصف)
     public_base_url: str = ""
 

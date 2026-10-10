@@ -1,0 +1,16 @@
+# ملفات لا تُرفع إلى FastAPI Cloud
+.env
+.env.*
+!.env.example
+!.env.production.example
+backups/
+data/
+tools/
+*.log
+__pycache__/
+*.pyc
+
+# ملفات مطلوبة رغم استثنائها من git
+!.python-version
+!app/static/
+!backend/app/static/
